@@ -48,7 +48,10 @@ export async function resendInvite(req, res) {
   const [rows] = await pool.query('SELECT * FROM invites WHERE id=?', [id]);
   if (!rows.length) return res.status(404).json({ error: 'Invite not found' });
   const inv = rows[0];
-  const link = `${req.protocol}://${req.get('host')}/register?token=${inv.token}`;
+  const frontendBaseUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+  const link = `${frontendBaseUrl}/register?token=${inv.token}`;
+  console.log(link, 'link53');
+
   try { await sendInviteEmail(inv.email, link); } catch (e) { console.warn('resend failed', e.message); }
   await logAudit(req.user.id, 'invite_resent', 'invite', id, null);
   res.json({ ok: true });
@@ -84,10 +87,10 @@ export async function listRequests(req, res) {
      JOIN users u ON u.id=lr.user_id
      ${where}
      ORDER BY lr.created_at DESC`, params);
-     
+
 
   // Construct full file path or URL for the frontend
-  const basePath = 'http://localhost:4000/backend/uploads/'; 
+  const basePath = 'http://localhost:4000/backend/uploads/';
   const requestsWithDocument = rows.map(row => ({
     ...row,
     document: row.document ? `${basePath}${row.document}` : null, // Convert path to full URL
@@ -157,7 +160,7 @@ export async function getDocument(req, res) {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
     const filePath = join(__dirname, '..', 'backend', rows[0].document_path);
-    
+
     if (!existsSync(filePath)) {
       return res.status(404).json({ error: 'File not found on server' });
     }
