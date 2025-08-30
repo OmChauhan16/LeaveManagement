@@ -95,7 +95,7 @@ node scripts/seedAdmin.js
 
 ## ▶️ Run the Application
 1. Start backend (`localhost:4000`)
-2. Start frontend (`localhost:3000`)
+2. Start frontend (`localhost:5173`)
 
 
 ---
